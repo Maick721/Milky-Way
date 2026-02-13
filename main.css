@@ -8,7 +8,13 @@ html,
 body
 {
     overflow: hidden;
+    background: radial-gradient(ellipse at center, #081122 0%, #000 65%);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
+
+html { height: 100%; }
 
 .webgl
 {
@@ -16,6 +22,485 @@ body
     top: 0;
     left: 0;
     outline: none;
+}
+
+.stars-container
+{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    transition: transform 0.25s linear;
+    will-change: transform;
+}
+
+.stars-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 55;
+}
+
+/* Ocultar controles y paneles */
+.dg.ac,
+.controller,
+[data-controller],
+.gui,
+.panel,
+.controls-panel,
+.threejs-inspector,
+.dat-gui,
+.datgui
+{
+    display: none !important;
+}
+
+.planets-container
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+}
+
+
+.star
+{
+    position: absolute;
+    width: var(--star-size, 2px);
+    height: var(--star-size, 2px);
+    background: radial-gradient(circle at 30% 30%, #ffffff, #dcdcdc);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.45);
+    will-change: transform, opacity;
+    transform: translateZ(0) scale(var(--star-scale,1));
+    animation: twinkle var(--twinkle, 8s) ease-in-out infinite, movestar var(--drift, 60s) linear infinite;
+}
+
+/* layers */
+.star-small { --star-size: 1px; --star-scale: 0.9; opacity: 0.6; }
+.star-medium { --star-size: 2px; --star-scale: 1; opacity: 0.9; }
+.star-large { --star-size: 3.4px; --star-scale: 1.15; opacity: 1; box-shadow: 0 0 6px rgba(255,255,255,0.85); }
+
+/* Nebula layers */
+.nebula {
+    position: absolute;
+    width: 70vmax;
+    height: 70vmax;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    /* Reduced blur for performance */
+    filter: blur(14px) saturate(110%);
+    mix-blend-mode: screen;
+    opacity: 0.32;
+    border-radius: 50%;
+}
+
+.nebula.n1 { background: radial-gradient(circle at 30% 30%, rgba(200,100,255,0.85), rgba(120,40,180,0.45) 30%, transparent 60%); animation: nebShift 40s linear infinite; }
+.nebula.n2 { background: radial-gradient(circle at 60% 60%, rgba(255,150,120,0.8), rgba(255,100,140,0.35) 30%, transparent 60%); animation: nebShift 55s linear infinite reverse; opacity: 0.28; }
+.nebula.n3 { background: radial-gradient(circle at 45% 60%, rgba(120,200,255,0.6), rgba(80,140,220,0.25) 30%, transparent 60%); animation: nebShift 70s linear infinite; opacity: 0.22; }
+
+@keyframes nebShift {
+    0% { transform: translate(-50%, -50%) scale(0.98) rotate(0deg); }
+    50% { transform: translate(-49%, -51%) scale(1.02) rotate(1.2deg); }
+    100% { transform: translate(-50%, -50%) scale(0.98) rotate(0deg); }
+}
+
+/* subtle vignette and glow */
+.galaxy-vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 120;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35) 100%);
+    mix-blend-mode: multiply;
+}
+
+.galaxy-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 70;
+    background: radial-gradient(circle at 50% 40%, rgba(255,200,220,0.06), transparent 25%);
+}
+
+.star::before
+{
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    border-radius: 50%;
+    box-shadow: inherit;
+    opacity: 0.6;
+}
+
+
+
+@keyframes twinkle
+{
+    0%, 100% {
+        opacity: 0.35;
+        box-shadow: 0 0 4px rgba(255, 255, 255, 0.25);
+        transform: translateZ(0);
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 18px rgba(255, 255, 255, 1), 0 0 28px rgba(255, 200, 150, 0.45);
+    }
+}
+
+@keyframes movestar
+{
+    0% { transform: translate3d(0,0,0) scale(1); }
+    25% { transform: translate3d(18px,-12px,0) scale(1.02); }
+    50% { transform: translate3d(-12px,18px,0) scale(0.98); }
+    75% { transform: translate3d(12px,-8px,0) scale(1.01); }
+    100% { transform: translate3d(0,0,0) scale(1); }
+}
+
+.container
+{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 100;
+}
+
+.btn-click
+{
+    padding: 12px 32px;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #ff1493, #ff69b4);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(255, 20, 147, 0.35);
+    transition: left 0.6s cubic-bezier(.2,.9,.2,1), top 0.6s cubic-bezier(.2,.9,.2,1), box-shadow 0.25s ease, transform 0.25s ease;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(var(--btn-scale, 1));
+}
+
+.btn-click:hover
+{
+    --btn-scale: 1.08;
+    box-shadow: 0 8px 24px rgba(255, 20, 147, 0.45);
+}
+
+.btn-click:active
+{
+    --btn-scale: 0.95;
+}
+
+.animation-container
+{
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+    perspective: 1000px;
+    animation: slideIn 0.5s ease forwards;
+}
+
+.animation-container.hidden
+{
+    display: none;
+}
+
+.card-container
+{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+    perspective: 1000px;
+}
+
+.card
+{
+    width: 200px;
+    height: 280px;
+    background: white;
+    border: 3px solid #ff1493;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease;
+    cursor: pointer;
+}
+
+.card.open
+{
+    transform: rotateY(0deg);
+}
+
+.card-front
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    animation: cardAppear 0.6s ease;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.card-front::before
+{
+    content: "💌";
+    font-size: 50px;
+}
+
+.card-inside
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #ffe4f5, #fff0f8);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card.open .card-front
+{
+    opacity: 0;
+    pointer-events: none;
+}
+
+.card.open .card-inside
+{
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.card-inside p
+{
+    font-family: Arial, sans-serif;
+    color: #ff1493;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+.card-inside p:first-child
+{
+    font-size: 18px;
+    color: #ff1493;
+}
+
+.card-inside p:last-child
+{
+    font-size: 14px;
+    color: #ff69b4;
+}
+
+.message-box
+{
+    margin-top: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #ffe4f5, #fff0f8);
+    border: 3px solid #ff1493;
+    border-radius: 10px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.4s ease;
+    pointer-events: none;
+}
+
+.message-box.show
+{
+    opacity: 1;
+    transform: scale(1) translateY(-6px);
+    pointer-events: auto;
+    animation: popIn 0.5s cubic-bezier(.2,.9,.2,1);
+}
+
+.message-box p
+{
+    font-family: Arial, sans-serif;
+    color: #ff1493;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.message-box p:first-child
+{
+    font-size: 24px;
+    color: #ff1493;
+}
+
+.message-box p:last-child
+{
+    font-size: 16px;
+    color: #ff69b4;
+}
+
+@keyframes popIn
+{
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+}
+
+.message-box p:first-child::after {
+    content: ' ❤️';
+}
+
+.message-box.show {
+    animation-name: popIn, heartPulse;
+    animation-duration: 0.5s, 1.6s;
+    animation-delay: 0s, 0.6s;
+    animation-iteration-count: 1, infinite;
+}
+
+/* Confetti styles */
+
+
+@keyframes slideIn
+{
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes cardAppear
+{
+    from {
+        opacity: 0;
+        transform: scale(0.5) rotateX(90deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotateX(0deg);
+    }
+}
+
+@keyframes bunnyWalk
+{
+    0% {
+        left: -150px;
+        transform: scaleX(1);
+    }
+    50% {
+        left: 20px;
+        transform: scaleX(1);
+    }
+    100% {
+        left: 20px;
+        transform: scaleX(1) bounce;
+    }
+}
+
+@keyframes bouquetPresent
+{
+    0% {
+        right: -100px;
+        opacity: 0;
+        transform: rotate(45deg);
+    }
+    50% {
+        right: -50px;
+        opacity: 1;
+    }
+    100% {
+        right: -80px;
+        opacity: 1;
+        animation: bouquetBounce 0.5s ease infinite;
+    }
+}
+
+@keyframes bouquetBounce
+{
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+}
+
+@keyframes textAppear
+{
+    0% {
+        opacity: 0;
+        top: -150px;
+        transform: translateX(-50%) scale(0.5);
+    }
+    70% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+        top: -100px;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+@keyframes heartFall
+{
+    0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(200px) rotate(360deg);
+    }
+}
+
+.heart
+{
+    position: absolute;
+    font-size: 30px;
+    pointer-events: none;
 }
 
 

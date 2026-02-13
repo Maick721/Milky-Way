@@ -1,1 +1,156 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>27 - Animated galaxy</title><script defer="defer" src="bundle.3a06a25f5426d8a94a54.js"></script><link href="main.css" rel="stylesheet"></head><body><canvas class="webgl"></canvas></body></html>
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<title>Estefy</title>
+		<script defer="defer" src="bundle.3a06a25f5426d8a94a54.js"></script>
+		<link href="main.css" rel="stylesheet">
+	</head>
+	<body>
+		<canvas class="webgl"></canvas>
+		<div class="stars-container" id="starsContainer"></div>
+		<div class="container">
+			<button class="btn-click" id="heartBtn">dar clic</button>
+			<div class="message-box" id="messageBox">
+				<p>Feliz 14 de Febrero</p>
+				<p>Espero que tengas un bonito día.
+                Eres una chica muy increíble y grandiosa, nunca te rindas y sigue dando 
+                lo mejor de ti ❤️
+                <br>En este dia espero que sea un dia lleno de sorpresas,
+sonrisas y momentos lindos para ti.🌷</p>
+			</div>
+		</div>
+		<script>
+			function createStars() {
+				const container = document.getElementById('starsContainer');
+				for (let i = 0; i < 90; i++) {
+					const star = document.createElement('div');
+					star.className = 'star';
+					star.style.left = Math.random() * 100 + '%';
+					star.style.top = Math.random() * 100 + '%';
+					const twinkleDur = (5 + Math.random() * 12).toFixed(2) + 's';
+					const driftDur = (40 + Math.random() * 80).toFixed(2) + 's';
+					const size = (1 + Math.random() * 2).toFixed(2) + 'px';
+					const scale = (0.8 + Math.random() * 1.4).toFixed(2);
+					star.style.setProperty('--twinkle', twinkleDur);
+					star.style.setProperty('--drift', driftDur);
+					star.style.setProperty('--star-size', size);
+					star.style.setProperty('--star-scale', scale);
+					star.style.animationDelay = (Math.random() * 5).toFixed(2) + 's';
+					star.style.opacity = (0.35 + Math.random() * 0.65).toFixed(2);
+					container.appendChild(star);
+				}
+			}
+
+			function init() {
+				const btn = document.getElementById('heartBtn');
+				const msgBox = document.getElementById('messageBox');
+				if (!btn || !msgBox) return;
+
+				// helper to place the button (percent values)
+				function moveBtnTo(xPct, yPct) {
+					btn.style.left = xPct + '%';
+					btn.style.top = yPct + '%';
+				}
+
+				let lastPos = null;
+
+				function randomPos(margin = 8, minDist = 12) {
+					for (let attempt = 0; attempt < 12; attempt++) {
+						const x = margin + Math.random() * (100 - margin * 2);
+						const y = margin + Math.random() * (100 - margin * 2);
+						if (!lastPos) {
+							lastPos = { x, y };
+							return { x, y };
+						}
+						const dx = Math.abs(x - lastPos.x);
+						const dy = Math.abs(y - lastPos.y);
+						const dist = Math.hypot(dx, dy);
+						if (dist >= minDist) {
+							lastPos = { x, y };
+							return { x, y };
+						}
+					}
+					// fallback: return a random position even if close after several attempts
+					const x = margin + Math.random() * (100 - margin * 2);
+					const y = margin + Math.random() * (100 - margin * 2);
+					lastPos = { x, y };
+					return { x, y };
+				}
+
+				// initialize at a random position
+				const initP = randomPos();
+				moveBtnTo(initP.x, initP.y);
+
+				let stage = 0; // 0 = initial, then 1..4 numbers, 5 = final show
+				const texts = ['¿Seguro?', '3', '2', '1'];
+
+				btn.addEventListener('click', function (e) {
+					e.preventDefault();
+					stage++;
+					if (stage >= 1 && stage <= 4) {
+						btn.textContent = texts[stage - 1];
+						const p = randomPos();
+						moveBtnTo(p.x, p.y);
+					} else {
+						// final click: reveal message
+						msgBox.classList.add('show');
+                    
+						// reset button after a short delay to a random position (not center)
+						setTimeout(() => {
+							stage = 0;
+							btn.textContent = 'dar clic';
+							const p = randomPos();
+							moveBtnTo(p.x, p.y);
+						}, 300);
+					}
+				});
+			}
+
+            
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', function () {
+					createStars();
+					init();
+				});
+			} else {
+				createStars();
+				init();
+			}
+
+			// subtle parallax for stars (lightweight)
+			(function setupParallax(){
+			const container = document.getElementById('starsContainer');
+			if(!container) return;
+			let px = 0, py = 0, tx = 0, ty = 0;
+			window.addEventListener('mousemove', (e) => {
+				const w = window.innerWidth, h = window.innerHeight;
+				px = (e.clientX / w - 0.5) * 12; // mouse parallax range
+				py = (e.clientY / h - 0.5) * 8;
+			});
+
+			function loop(t) {
+				// gentle automatic drift (time-based)
+				const driftX = Math.sin(t * 0.00012) * 4 + Math.sin(t * 0.00037) * 2;
+				const driftY = Math.cos(t * 0.0001) * 3 + Math.cos(t * 0.00029) * 1.5;
+				const targetX = px + driftX;
+				const targetY = py + driftY;
+				tx += (targetX - tx) * 0.04;
+				ty += (targetY - ty) * 0.04;
+				container.style.transform = `translate3d(${ -tx }px, ${ -ty }px, 0)`;
+				requestAnimationFrame(loop);
+			}
+			requestAnimationFrame(loop);
+		})();
+
+			window.addEventListener('load', function () {
+				const gui = document.querySelector('.dg.ac');
+				if (gui) gui.style.display = 'none';
+				const controls = document.querySelectorAll('[data-controller], .controller, .gui, .panel');
+				controls.forEach(el => el.style.display = 'none');
+			});
+		</script>
+	</body>
+</html>
